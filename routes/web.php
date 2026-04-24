@@ -4,6 +4,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WatchedMovieController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\RecommendationController;
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -16,9 +18,14 @@ Route::get('/dashboard', function () {
 Route::middleware('auth')->group(function () {
     Route::resource('watched-movies', WatchedMovieController::class);
 
-    Route::get('/recommendations', function () {
+    /*Route::get('/recommendations', function () {
         return view('recommendations.index');
-    })->name('recommendations.index');
+    })->name('recommendations.index');*/
+    Route::get('/recommendations', [RecommendationController::class, 'index'])
+    ->name('recommendations.index');
+
+Route::post('/recommendations/generate', [RecommendationController::class, 'generate'])
+    ->name('recommendations.generate');
 
     Route::get('/favorites', function () {
         return view('favorites.index');
@@ -30,6 +37,12 @@ Route::middleware('auth')->group(function () {
 
 
     Route::get('/search', [SearchController::class, 'index'])->name('search.index');
+    
+
+    Route::middleware(['auth'])->get('/security', function () {
+    return view('profile.security');
+    })->name('security');
 });
 
 require __DIR__.'/auth.php';
+

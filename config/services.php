@@ -41,4 +41,9 @@ return [
     'image_base_url' => env('TMDB_IMAGE_BASE_URL', 'https://image.tmdb.org/t/p/w500'),
 ],
 
+'gemini' => [
+    'api_key' => env('GEMINI_API_KEY'),
+    'model' => env('GEMINI_MODEL', 'gemini-2.5-flash-lite'),
+],
+
 ];

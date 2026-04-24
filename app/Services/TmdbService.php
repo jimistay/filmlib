@@ -19,8 +19,7 @@ class TmdbService
 
     protected function client()
     {
-        return Http::withoutVerifying()
-            ->acceptJson();
+        return Http::withoutVerifying()->acceptJson();
     }
 
     protected function mapMovie(array $item): array
@@ -108,5 +107,41 @@ class TmdbService
                     : $this->mapMovie($item);
             })
             ->toArray();
+    }
+
+    public function searchMovieByTitle(string $title): ?array
+    {
+        $response = $this->client()->get("{$this->baseUrl}/search/movie", [
+            'api_key' => $this->apiKey,
+            'query' => $title,
+            'language' => 'fr-FR',
+            'page' => 1,
+        ]);
+
+        if ($response->failed()) {
+            return null;
+        }
+
+        $first = collect($response->json('results', []))->first();
+
+        return $first ? $this->mapMovie($first) : null;
+    }
+
+    public function searchTvByTitle(string $title): ?array
+    {
+        $response = $this->client()->get("{$this->baseUrl}/search/tv", [
+            'api_key' => $this->apiKey,
+            'query' => $title,
+            'language' => 'fr-FR',
+            'page' => 1,
+        ]);
+
+        if ($response->failed()) {
+            return null;
+        }
+
+        $first = collect($response->json('results', []))->first();
+
+        return $first ? $this->mapTv($first) : null;
     }
 }
