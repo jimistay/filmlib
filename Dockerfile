@@ -10,6 +10,8 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 COPY . .
 
+RUN npm install && npm run build
+
 RUN composer install --no-dev --optimize-autoloader
 RUN php artisan config:clear || true
 RUN php artisan route:clear || true
