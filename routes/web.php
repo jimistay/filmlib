@@ -7,6 +7,7 @@ use App\Http\Controllers\SearchController;
 use App\Http\Controllers\RecommendationController;
 
 
+
 Route::get('/', function () {
     return view('welcome');
 });
@@ -17,6 +18,7 @@ Route::get('/dashboard', function () {
 
 Route::middleware('auth')->group(function () {
     Route::resource('watched-movies', WatchedMovieController::class);
+    
 
     /*Route::get('/recommendations', function () {
         return view('recommendations.index');
@@ -38,6 +40,12 @@ Route::post('/recommendations/generate', [RecommendationController::class, 'gene
 
     Route::get('/search', [SearchController::class, 'index'])->name('search.index');
     
+Route::post('/recommendations/generate-with-filters', [RecommendationController::class, 'generateWithFilters'])
+    ->name('recommendations.generateWithFilters');
+
+
+    Route::get('/explore/{type}/{id}', [SearchController::class, 'show'])
+    ->name('search.show');
 
     Route::middleware(['auth'])->get('/security', function () {
     return view('profile.security');

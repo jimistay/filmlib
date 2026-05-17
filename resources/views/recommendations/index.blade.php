@@ -1,71 +1,590 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Mes recommandations IA
-        </h2>
-    </x-slot>
+    <style>
+        body { background: #05070d !important; }
 
-    <div class="py-8">
-        <div class="max-w-6xl mx-auto sm:px-6 lg:px-8 space-y-6">
+        nav.bg-white,
+        header.bg-white {
+            background: #080b14 !important;
+            border-color: rgba(255,255,255,.10) !important;
+        }
 
-            {{-- Messages --}}
+        nav a, nav button, nav div {
+            color: white !important;
+        }
+
+        .rec-page {
+            min-height: calc(100vh - 64px);
+            background:
+                radial-gradient(circle at 12% 10%, rgba(229,9,20,.28), transparent 26%),
+                radial-gradient(circle at 92% 18%, rgba(124,58,237,.20), transparent 28%),
+                radial-gradient(circle at 50% 90%, rgba(229,9,20,.12), transparent 35%),
+                linear-gradient(180deg, #080b14 0%, #05070d 100%);
+            padding: 56px 24px 80px;
+        }
+
+        .rec-container {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        .hero-rec {
+            position: relative;
+            overflow: hidden;
+            border-radius: 32px;
+            padding: 46px;
+            margin-bottom: 32px;
+            border: 1px solid rgba(255,255,255,.12);
+            background:
+                linear-gradient(135deg, rgba(255,255,255,.11), rgba(255,255,255,.035));
+            box-shadow: 0 40px 120px rgba(0,0,0,.45);
+        }
+
+        .hero-rec::before {
+            content: "";
+            position: absolute;
+            width: 340px;
+            height: 340px;
+            right: -90px;
+            top: -120px;
+            border-radius: 999px;
+            background: rgba(229,9,20,.32);
+            filter: blur(18px);
+        }
+
+        .hero-rec::after {
+            content: "AI";
+            position: absolute;
+            right: 42px;
+            bottom: -20px;
+            color: rgba(255,255,255,.035);
+            font-size: 180px;
+            font-weight: 900;
+            letter-spacing: -12px;
+        }
+
+        .eyebrow {
+            margin: 0 0 10px;
+            color: #ff2935;
+            font-size: 13px;
+            font-weight: 900;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+        }
+
+        .hero-rec h1 {
+            position: relative;
+            z-index: 2;
+            margin: 0;
+            max-width: 820px;
+            color: white;
+            font-size: clamp(42px, 6vw, 76px);
+            line-height: .95;
+            font-weight: 950;
+            letter-spacing: -3px;
+        }
+
+        .hero-rec h1 span { color: #ff2935; }
+
+        .hero-rec p {
+            position: relative;
+            z-index: 2;
+            margin: 24px 0 0;
+            max-width: 690px;
+            color: rgba(255,255,255,.68);
+            font-size: 19px;
+            line-height: 1.65;
+        }
+
+        .alert {
+            border-radius: 16px;
+            padding: 16px 18px;
+            margin-bottom: 18px;
+            font-weight: 800;
+        }
+
+        .alert-success {
+            background: rgba(34,197,94,.13);
+            color: #86efac;
+            border: 1px solid rgba(34,197,94,.30);
+        }
+
+        .alert-error {
+            background: rgba(239,68,68,.13);
+            color: #fca5a5;
+            border: 1px solid rgba(239,68,68,.30);
+        }
+
+        .generator-grid {
+            display: grid;
+            grid-template-columns: .85fr 1.15fr;
+            gap: 24px;
+            margin-bottom: 36px;
+        }
+
+        .panel {
+            position: relative;
+            overflow: hidden;
+            border-radius: 28px;
+            padding: 30px;
+            border: 1px solid rgba(255,255,255,.12);
+            background:
+                radial-gradient(circle at 15% 0%, rgba(229,9,20,.18), transparent 34%),
+                linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.025));
+            box-shadow: 0 30px 90px rgba(0,0,0,.34);
+        }
+
+        .panel h2 {
+            margin: 0 0 10px;
+            color: white;
+            font-size: 24px;
+            font-weight: 950;
+        }
+
+        .panel p {
+            margin: 0 0 24px;
+            color: rgba(255,255,255,.62);
+            line-height: 1.55;
+        }
+
+        .panel-icon {
+            width: 68px;
+            height: 68px;
+            border-radius: 22px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ff2935;
+            font-size: 32px;
+            background: rgba(229,9,20,.14);
+            border: 1px solid rgba(229,9,20,.24);
+            box-shadow: 0 18px 45px rgba(229,9,20,.16);
+        }
+
+        .filters {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .field label {
+            display: block;
+            margin-bottom: 8px;
+            color: rgba(255,255,255,.76);
+            font-size: 13px;
+            font-weight: 900;
+        }
+
+        .form-control {
+            width: 100%;
+            height: 52px;
+            padding: 0 14px;
+            border-radius: 14px;
+            border: 1px solid rgba(255,255,255,.13);
+            background: rgba(255,255,255,.06);
+            color: white;
+            outline: none;
+            transition: .18s ease;
+        }
+
+        .form-control:focus {
+            border-color: #ff2935;
+            box-shadow: 0 0 0 4px rgba(229,9,20,.16);
+        }
+
+        select.form-control option {
+            color: #111;
+        }
+
+        .btn {
+            height: 54px;
+            padding: 0 24px;
+            border: 0;
+            border-radius: 15px;
+            cursor: pointer;
+            color: white;
+            font-weight: 950;
+            transition: .2s ease;
+        }
+
+        .btn:hover { transform: translateY(-2px); }
+
+        .btn-red {
+            width: 100%;
+            background: linear-gradient(135deg, #e50914, #ff2935);
+            box-shadow: 0 20px 52px rgba(229,9,20,.34);
+        }
+
+        .btn-purple {
+            background: linear-gradient(135deg, #7c3aed, #e50914);
+            box-shadow: 0 20px 52px rgba(124,58,237,.26);
+        }
+
+        .section-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            gap: 20px;
+            margin: 38px 0 22px;
+        }
+
+        .section-title h2 {
+            margin: 0;
+            color: white;
+            font-size: 32px;
+            font-weight: 950;
+        }
+
+        .section-title span {
+            color: rgba(255,255,255,.48);
+            font-weight: 700;
+        }
+
+        .recommendations-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 26px;
+        }
+
+        .rec-card {
+            overflow: hidden;
+            border-radius: 28px;
+            border: 1px solid rgba(255,255,255,.12);
+            background:
+                radial-gradient(circle at 20% 0%, rgba(229,9,20,.16), transparent 30%),
+                linear-gradient(180deg, rgba(255,255,255,.075), rgba(255,255,255,.025));
+            box-shadow: 0 30px 90px rgba(0,0,0,.36);
+            transition: .25s ease;
+        }
+
+        .rec-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(229,9,20,.52);
+            box-shadow: 0 45px 130px rgba(0,0,0,.58);
+        }
+
+        .poster-wrap {
+            position: relative;
+            overflow: hidden;
+            height: 430px;
+            background: rgba(255,255,255,.06);
+        }
+
+        .poster {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: .35s ease;
+        }
+
+        .rec-card:hover .poster {
+            transform: scale(1.06);
+        }
+
+        .poster-gradient {
+            position: absolute;
+            inset: auto 0 0 0;
+            height: 55%;
+            background: linear-gradient(180deg, transparent, rgba(5,7,13,.95));
+        }
+
+        .type-badge {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            padding: 7px 12px;
+            border-radius: 999px;
+            color: white;
+            background: rgba(229,9,20,.86);
+            font-size: 12px;
+            font-weight: 950;
+            backdrop-filter: blur(10px);
+        }
+
+        .rec-content {
+            padding: 22px;
+        }
+
+        .rec-content h3 {
+            margin: 0 0 12px;
+            color: white;
+            font-size: 23px;
+            font-weight: 950;
+            line-height: 1.15;
+        }
+
+        .reason {
+            margin: 0;
+            color: rgba(255,255,255,.66);
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .providers-title {
+            margin: 20px 0 10px;
+            color: rgba(255,255,255,.82);
+            font-size: 13px;
+            font-weight: 950;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .providers {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .provider {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            max-width: 100%;
+            padding: 7px 10px;
+            border-radius: 12px;
+            background: rgba(255,255,255,.07);
+            border: 1px solid rgba(255,255,255,.08);
+            color: rgba(255,255,255,.84);
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .provider img {
+            width: 22px;
+            height: 22px;
+            border-radius: 5px;
+            object-fit: cover;
+        }
+
+        .watch-link {
+            display: inline-flex;
+            margin-top: 14px;
+            color: #ff2935;
+            font-weight: 900;
+            text-decoration: none;
+        }
+
+        .empty-state {
+            border-radius: 28px;
+            padding: 42px;
+            color: rgba(255,255,255,.72);
+            border: 1px solid rgba(255,255,255,.12);
+            background: rgba(255,255,255,.05);
+            text-align: center;
+            font-size: 18px;
+        }
+
+        @media (max-width: 1100px) {
+            .generator-grid,
+            .recommendations-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filters {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .hero-rec,
+            .panel {
+                padding: 26px;
+            }
+
+            .filters {
+                grid-template-columns: 1fr;
+            }
+
+            .poster-wrap {
+                height: 380px;
+            }
+
+            .section-title {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+        }
+    </style>
+
+    <div class="rec-page">
+        <div class="rec-container">
             @if(session('success'))
-                <div class="rounded bg-green-100 p-4 text-green-800">
-                    {{ session('success') }}
-                </div>
+                <div class="alert alert-success">{{ session('success') }}</div>
             @endif
 
             @if(session('error'))
-                <div class="rounded bg-red-100 p-4 text-red-800">
-                    {{ session('error') }}
-                </div>
+                <div class="alert alert-error">{{ session('error') }}</div>
             @endif
 
-            {{-- 🔥 BOUTON IMPORTANT --}}
-            <div class="bg-white shadow rounded-lg p-6">
-                <form method="POST" action="{{ route('recommendations.generate') }}">
-                    @csrf
+            <section class="hero-rec">
+                <p class="eyebrow">Recommandations IA</p>
+                <h1>
+                    Trouve ton prochain <span>coup de cœur</span>.
+                </h1>
+                <p>
+                    Film Lib analyse ton historique, ton humeur et tes préférences pour te proposer des films et séries vraiment adaptés à toi.
+                </p>
+            </section>
 
-                    <button type="submit"
-                        class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-semibold">
-                        Générer mes recommandations
-                    </button>
-                </form>
+            <section class="generator-grid">
+                <div class="panel">
+                    <div class="panel-icon">✦</div>
+                    <h2>Mode rapide</h2>
+                    <p>
+                        Génère des recommandations directement à partir de tes films et séries déjà vus.
+                    </p>
+
+                    <form method="POST" action="{{ route('recommendations.generate') }}">
+                        @csrf
+                        <button type="submit" class="btn btn-red">
+                            Générer mes recommandations
+                        </button>
+                    </form>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-icon">⚙</div>
+                    <h2>Mode avancé</h2>
+                    <p>
+                        Ajuste l’humeur, le genre, la note, l’année, le type et la plateforme.
+                    </p>
+
+                    <form method="POST" action="{{ route('recommendations.generateWithFilters') }}">
+                        @csrf
+
+                        <div class="filters">
+                            <div class="field">
+                                <label>Humeur</label>
+                                <select name="mood" class="form-control">
+                                    @foreach($moods as $value => $label)
+                                        <option value="{{ $value }}">{{ $label }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="field">
+                                <label>Catégorie</label>
+                                <select name="genre_label" class="form-control">
+                                    @foreach($genres as $value => $label)
+                                        <option value="{{ $label }}">{{ $label }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="field">
+                                <label>Note TMDB minimale</label>
+                                <select name="min_rating" class="form-control">
+                                    <option value="">Toutes</option>
+                                    <option value="5">5+</option>
+                                    <option value="6">6+</option>
+                                    <option value="7">7+</option>
+                                    <option value="8">8+</option>
+                                </select>
+                            </div>
+
+                            <div class="field">
+                                <label>Année</label>
+                                <input type="number" name="year" placeholder="2024" class="form-control">
+                            </div>
+
+                            <div class="field">
+                                <label>Type</label>
+                                <select name="type" class="form-control">
+                                    <option value="">Films et séries</option>
+                                    <option value="movie">Films uniquement</option>
+                                    <option value="tv">Séries uniquement</option>
+                                </select>
+                            </div>
+
+                            <div class="field">
+                                <label>Plateforme</label>
+                                <select name="platform" class="form-control">
+                                    <option value="">Toutes</option>
+                                    <option value="Netflix">Netflix</option>
+                                    <option value="Disney Plus">Disney+</option>
+                                    <option value="Amazon Prime Video">Prime Video</option>
+                                    <option value="Apple TV Plus">Apple TV+</option>
+                                    <option value="OCS">OCS</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-purple" style="margin-top:18px; width:100%;">
+                            Générer avec filtres
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            <div class="section-title">
+                <div>
+                    <p class="eyebrow">Résultats</p>
+                    <h2>Suggestions personnalisées</h2>
+                </div>
+
+                @if($recommendations->count())
+                    <span>{{ $recommendations->count() }} recommandation(s)</span>
+                @endif
             </div>
 
-            {{-- LISTE --}}
             @if($recommendations->count())
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <section class="recommendations-grid">
                     @foreach($recommendations as $recommendation)
-                        <div class="bg-white shadow rounded-lg p-4">
+                        <article class="rec-card">
+                            <div class="poster-wrap">
+                                @if($recommendation->poster_url)
+                                    <img
+                                        src="{{ $recommendation->poster_url }}"
+                                        alt="{{ $recommendation->title }}"
+                                        class="poster"
+                                    >
+                                @endif
 
-                            @if($recommendation->poster_url)
-                                <img src="{{ $recommendation->poster_url }}"
-                                     class="w-full h-80 object-cover rounded mb-4">
-                            @endif
+                                <div class="poster-gradient"></div>
 
-                            <div class="mb-2">
-                                <span class="text-xs bg-gray-200 px-2 py-1 rounded">
+                                <span class="type-badge">
                                     {{ $recommendation->media_type === 'movie' ? 'Film' : 'Série' }}
                                 </span>
                             </div>
 
-                            <h3 class="text-lg font-bold mb-2">
-                                {{ $recommendation->title }}
-                            </h3>
+                            <div class="rec-content">
+                                <h3>{{ $recommendation->title }}</h3>
 
-                            <p class="text-sm text-gray-700">
-                                {{ $recommendation->reason }}
-                            </p>
-                        </div>
+                                <p class="reason">
+                                    {{ $recommendation->reason }}
+                                </p>
+
+                                <div class="providers-title">Disponible sur</div>
+
+                                @if(is_array($recommendation->watch_providers) && count($recommendation->watch_providers))
+                                    <div class="providers">
+                                        @foreach($recommendation->watch_providers as $provider)
+                                            <div class="provider">
+                                                @if(!empty($provider['logo_url']))
+                                                    <img src="{{ $provider['logo_url'] }}" alt="{{ $provider['name'] }}">
+                                                @endif
+                                                <span>{{ $provider['name'] }}</span>
+                                            </div>
+                                        @endforeach
+                                    </div>
+
+                                    @if($recommendation->watch_link)
+                                        <a href="{{ $recommendation->watch_link }}" target="_blank" class="watch-link">
+                                            Voir les plateformes →
+                                        </a>
+                                    @endif
+                                @else
+                                    <p class="reason">Aucune plateforme trouvée en France.</p>
+                                @endif
+                            </div>
+                        </article>
                     @endforeach
-                </div>
+                </section>
             @else
-                <div class="bg-white shadow rounded-lg p-6">
-                    Aucune recommandation pour le moment.
+                <div class="empty-state">
+                    Aucune recommandation pour le moment. Lance une génération pour découvrir tes prochains films.
                 </div>
             @endif
-
         </div>
     </div>
 </x-app-layout>

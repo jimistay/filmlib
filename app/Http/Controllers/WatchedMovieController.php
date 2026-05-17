@@ -26,22 +26,35 @@ class WatchedMovieController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-    'tmdb_id' => ['required', 'integer'],
-    'media_type' => ['nullable', 'in:movie,tv'],
-    'title' => ['required', 'string', 'max:255'],
-    'poster_url' => ['nullable', 'url'],
-    'rating' => ['required', 'integer', 'min:1', 'max:5'],
-    'watched_at' => ['nullable', 'date'],
-    ]);
+            'tmdb_id' => ['required', 'integer'],
+            'media_type' => ['nullable', 'in:movie,tv'],
+            'title' => ['required', 'string', 'max:255'],
+            'poster_url' => ['nullable', 'url'],
+            'rating' => ['required', 'integer', 'min:1', 'max:5'],
+            'watched_at' => ['nullable', 'date'],
+        ]);
 
-    $validated['user_id'] = Auth::id();
-    $validated['media_type'] = $validated['media_type'] ?? 'movie';
+        $mediaType = $validated['media_type'] ?? 'movie';
+
+        $alreadyExists = WatchedMovie::where('user_id', Auth::id())
+            ->where('tmdb_id', $validated['tmdb_id'])
+            ->where('media_type', $mediaType)
+            ->exists();
+
+        if ($alreadyExists) {
+            return redirect()
+                ->back()
+                ->with('error', 'Ce film ou cette série est déjà dans vos films vus.');
+        }
+
+        $validated['user_id'] = Auth::id();
+        $validated['media_type'] = $mediaType;
 
         WatchedMovie::create($validated);
 
         return redirect()
-            ->route('watched-movies.index')
-            ->with('success', 'Film ajouté avec succès.');
+            ->back()
+            ->with('success', 'Film ou série ajouté avec succès.');
     }
 
     public function edit(WatchedMovie $watchedMovie)
@@ -52,20 +65,20 @@ class WatchedMovieController extends Controller
     }
 
     public function update(Request $request, WatchedMovie $watchedMovie)
-    {
-        abort_if($watchedMovie->user_id !== Auth::id(), 403);
+{
+    abort_if($watchedMovie->user_id !== Auth::id(), 403);
 
-        $validated = $request->validate([
-            'rating' => ['required', 'integer', 'min:1', 'max:5'],
-            'watched_at' => ['nullable', 'date'],
-        ]);
+    $validated = $request->validate([
+        'rating' => ['required', 'integer', 'min:1', 'max:5'],
+        'watched_at' => ['nullable', 'date'],
+    ]);
 
-        $watchedMovie->update($validated);
+    $watchedMovie->update($validated);
 
-        return redirect()
-            ->route('watched-movies.index')
-            ->with('success', 'Note mise à jour avec succès.');
-    }
+    return redirect()
+        ->back()
+        ->with('success', 'Note mise à jour avec succès.');
+}
 
     public function destroy(WatchedMovie $watchedMovie)
     {
@@ -75,6 +88,6 @@ class WatchedMovieController extends Controller
 
         return redirect()
             ->route('watched-movies.index')
-            ->with('success', 'Film supprimé.');
+            ->with('success', 'Film ou série supprimé.');
     }
 }
