@@ -10,7 +10,9 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 COPY . .
 
-RUN npm install && npm run build
+RUN npm install
+RUN chmod -R 755 node_modules/.bin
+RUN npm run build
 
 RUN composer install --no-dev --optimize-autoloader
 
